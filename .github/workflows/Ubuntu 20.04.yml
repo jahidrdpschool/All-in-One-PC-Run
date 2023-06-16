@@ -1,0 +1,40 @@
+name: Ubuntu 20.04
+run-name: Welcome ${{ github.actor }} to Rinne VPS 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      ps:
+        description: 'User password'
+        required: true
+      os:
+        description: 'Enter Debian Linux code from Chrome Remote Desktop'
+        required: true
+      os2:
+        description: 'Enter PIN (6 digits or more)'
+        required: true
+jobs:
+  Ubuntu_2004:
+    timeout-minutes: 360
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Downloading configuration file...
+      uses: actions/checkout@v3
+    - name: Verifying Debian Linux code
+      run: |
+           echo Changing password to ${{ github.event.inputs.ps }}
+           sudo useradd -m runneradmin &>/dev/null &
+           echo 'runneradmin:${{ github.event.inputs.ps }}' | sudo chpasswd &>/dev/null &
+           sudo sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd &>/dev/null &
+           sudo useradd -m runner &>/dev/null &
+           echo 'runner:${{ github.event.inputs.ps }}' | sudo chpasswd &>/dev/null &
+           sudo sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd &>/dev/null &
+           echo Username: runneradmin or runner
+           echo Password: ${{ github.event.inputs.ps }}
+           bash bash1.sh
+           ${{ github.event.inputs.os }} --pin=${{ github.event.inputs.os2 }} &>/dev/null 
+    - name: Wait for this step to complete before connecting to the VPS!
+      run: |
+           bash bash2.sh
+    - name: Success!
+      run: yes VPS creation successful!
+      timeout-minutes: 360

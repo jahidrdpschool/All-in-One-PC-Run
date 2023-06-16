@@ -1,0 +1,76 @@
+name: Windows Server 2019
+run-name: Welcome ${{ github.actor }} to Rinne VPS 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Enter Ngrok token'
+        required: true
+      os2:
+        description: 'Enter password'
+        required: true
+      os4:
+        description: 'Create a custom username'
+        required: false
+      os3:
+        description: '(Optional) Enter packages in Chocolatey, e.g., "firefox googlechrome vlc aegisub handbrake..."'
+        required: false
+jobs:
+  Windows_Server_2019:
+    timeout-minutes: 360
+    runs-on: windows-2019
+    name: Running
+    steps:
+    - name: Download configuration files...
+      uses: actions/checkout@v1
+      timeout-minutes: 360
+    - name: Create accounts
+      run: |
+            powershell.exe -File 1.ps1 > $null
+            echo Cannot change Administrator password, use Administrator privileges and do not change the password
+            
+            net.exe user installer ${{ github.event.inputs.os2 }}
+            net user ${{ github.event.inputs.os4 }} ${{ github.event.inputs.os2 }} /add 
+            net localgroup administrators ${{ github.event.inputs.os4 }} /add
+            
+      timeout-minutes: 360
+    - name: Setup for Ngrok and Remote Desktop
+      run: |
+            powershell.exe -File 2.ps1
+            ngrok authtoken ${{ github.event.inputs.os }}
+    - name: Run Ngrok
+      shell: bash
+      run: bash 3389.sh
+      timeout-minutes: 360
+    - name: Here are the password and username
+      run: |
+            write-host Username: $env:UserName
+            write-host Username: installer
+            write-host Password: PASSWORD DISPLAY REMOVED FOR SECURITY REASONS
+         
+      timeout-minutes: 360
+    - name: Get VPS IP
+      run: |
+            write-host IP: 
+            curl -s localhost:4040/api/tunnels | jq -r .tunnels[0].public_url || echo "Token error"
+            
+            echo "Chocolatey feature is currently under maintenance"
+            
+      timeout-minutes: 360
+    - name: Success!
+      run: |
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            sleep 200
+            bash Nn.sh
+      timeout-minutes: 999

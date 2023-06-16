@@ -1,0 +1,62 @@
+name: Windows Server 2022 Chrome Remote Desktop
+run-name: Welcome ${{ github.actor }} to Rinne VPS 🚀
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Enter Windows code (Powershell) from Chrome Remote Desktop'
+        required: true
+      os2:
+        description: 'Enter password for the user'
+        required: true
+      pin:
+        description: 'Enter PIN for Chrome Remote Desktop (6 or more digits)'
+        required: true
+      os3:
+        description: 'Enter Ngrok token (optional)'
+        required: false
+jobs:
+  Windows_Server_2022:
+    timeout-minutes: 360
+    runs-on: windows-latest
+    name: Running
+    steps:
+    - name: Download configuration files...
+      uses: actions/checkout@v3
+      timeout-minutes: 360
+    - name: Create accounts
+      run: |
+            powershell.exe -File 1.ps1 > $null
+            
+            net user installer ${{ github.event.inputs.os2 }} > $null
+      timeout-minutes: 360
+    - name: Run Chrome Remote Desktop & Ngrok
+      run: |
+            choco install ngrok > $null
+             
+            powershell.exe -File c.ps1 > $null
+            ${{ github.event.inputs.os }} --pin=${{ github.event.inputs.pin }}
+    - name: Run Ngrok (If you entered a token)
+      shell: bash
+      run: |
+         bash 3389.sh
+         ngrok authtoken ${{ github.event.inputs.os3 }} &>/dev/null &
+      timeout-minutes: 360
+    - name: Username & NGROK IP
+      run: |
+            write-host IP: 
+            curl -s localhost:4040/api/tunnels | jq -r .tunnels[0].public_url || echo "Token error"
+            
+            write-host Username: installer
+            write-host Password: PASSWORD DISPLAY REMOVED FOR SECURITY REASONS
+
+         
+    - name: VPS setup complete. Please use Chrome Remote Desktop to access.
+      run: |
+            powershell.exe -File 3.ps1
+      timeout-minutes: 360
+    - name: Done! Enjoy your VPS.
+      run: |
+            bash Nn.sh
+            
+      timeout-minutes: 360
